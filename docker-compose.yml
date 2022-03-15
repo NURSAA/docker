@@ -14,29 +14,29 @@ services:
       - "4306:3306"
     volumes:
       - ./mysql:/var/lib/mysql
-  api:
-    container_name: api
+  backend:
+    container_name: backend
     build:
-      context: ./Api
+      context: ./backend
     ports:
       - "9000:9000"
     volumes:
-      - ./Api:/var/www/symfony_docker
+      - ./backend:/var/www/symfony_docker
     depends_on:
       - database
-  app:
-    container_name: app
+  frontend:
+    container_name: frontend
     restart: unless-stopped
     tty: true
     build:
-      context: ./App
+      context: ./frontend
     ports:
       - "4200:4200"
     volumes:
-      - ./App:/app
-      - ./Api:/var/www/symfony_docker
+      - ./frontend:/app
+      - ./backend:/var/www/symfony_docker
     depends_on:
-      - api
+      - backend
       - database
   nginx:
     container_name: nginx
@@ -44,10 +44,10 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./App:/var/www/app
-      - ./Api:/var/www/symfony_docker
+      - ./frontend:/var/www/app
+      - ./backend:/var/www/symfony_docker
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - app
-      - api
+      - frontend
+      - backend
       - database
